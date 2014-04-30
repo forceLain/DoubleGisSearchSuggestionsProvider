@@ -68,7 +68,7 @@ public class MainActivity extends ActionBarActivity {
 
 
         String url = "http://catalog.api.2gis.ru/profile?&version=1.3&key=rumobc0685&id="+id+"&hash="+hash;
-        GsonRequest request = new GsonRequest(Request.Method.GET, url, Profile.class, null, null, onSuccess, errorListener);
+        GsonRequest<Profile> request = new GsonRequest<Profile>(Request.Method.GET, url, Profile.class, onSuccess, errorListener);
         queue.add(request);
     }
 

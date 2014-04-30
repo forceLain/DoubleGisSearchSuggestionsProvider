@@ -14,6 +14,4 @@ public class ApiResponse {
 
     @SerializedName("error_code")
     public String errorCode;
-
-    public Firm[] result;
 }
