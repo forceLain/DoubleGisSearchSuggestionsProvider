@@ -12,12 +12,15 @@ public class UrlBuilder {
     private static final String ENDPOINT = "http://catalog.api.2gis.ru";
     private static final int RESOURCE_PROJECT = 1;
     private static final int RESOURCE_SEARCH = 2;
+    private static final int RESOURCE_PROFILE = 3;
     private static final int DEFAULT_LIMIT = 15;
 
     private String what;
     private String where;
     private int resource;
     private int limit = DEFAULT_LIMIT;
+    private String id;
+    private String hash;
 
     public UrlBuilder projects() {
         resource = RESOURCE_PROJECT;
@@ -26,6 +29,13 @@ public class UrlBuilder {
 
     public UrlBuilder search() {
         resource = RESOURCE_SEARCH;
+        return this;
+    }
+
+    public UrlBuilder profile(String id, String hash){
+        resource = RESOURCE_PROFILE;
+        this.id = id;
+        this.hash = hash;
         return this;
     }
 
@@ -50,8 +60,10 @@ public class UrlBuilder {
                 return buildProjectUrl();
             case RESOURCE_SEARCH:
                 return buildSearchUrl();
+            case RESOURCE_PROFILE:
+                return buildProfile();
             default:
-                throw new IllegalStateException("You mast set either search() or projects()");
+                throw new IllegalStateException("You mast set search() or projects() or profile(...)");
         }
     }
 
@@ -70,7 +82,17 @@ public class UrlBuilder {
         return ENDPOINT + "/project/list?" + "version=" + VERSION + "&key=" + KEY;
     }
 
+    private String buildProfile() {
+        return ENDPOINT + "/profile?" + "version=" + VERSION + "&key=" + KEY + "&id=" + id + "&hash="+hash;
+    }
+
     private String buildSearchUrl() {
-        return ENDPOINT + "/search?what=" + what + "&where=" + where + "&version=" + VERSION + "&key=" + KEY + "&pagesize=" + limit;
+        return ENDPOINT +
+                "/search?what=" + what +
+                "&where=" + where + "" +
+                "&version=" + VERSION +
+                "&key=" + KEY +
+                "&pagesize=" + limit +
+                "&sort=distance";
     }
 }

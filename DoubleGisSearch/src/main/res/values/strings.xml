@@ -3,7 +3,8 @@
 
     <string name="app_name">DoubleGisSearch</string>
     <string name="app_label">app_label</string>
-    <string name="search_hint">search hint</string>
+    <string name="search_hint">Поиск</string>
     <string name="search_description">search description</string>
+    <string name="item_search">Поиск</string>
 
 </resources>

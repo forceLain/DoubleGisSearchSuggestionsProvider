@@ -13,4 +13,8 @@ public class Profile {
     public String name;
     public String address;
     public String[] rubrics;
+    public Schedule schedule;
+    public Contacts[] contacts;
+    public String lat;
+    public String lon;
 }

@@ -1,0 +1,16 @@
+<!DOCTYPE html> 
+<html> 
+<head> 
+    <title>Моя карта</title> 
+    <script type="text/javascript" src="http://maps.api.2gis.ru/1.0"></script> 
+    <script type="text/javascript"> 
+        DG.autoload(function() {
+            var myMap = new DG.Map('myMapId');
+            myMap.setCenter(new DG.GeoPoint(82.927810142519,55.028936234826), 15);
+        }); 
+    </script> 
+</head> 
+<body >
+    <div id="myMapId" style="width:100%; height:200px"></div>
+</body>
+</html>
