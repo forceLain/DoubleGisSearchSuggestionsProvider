@@ -6,6 +6,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.text.DecimalFormat;
 
 /**
  * Created by a.glyzin on 18.04.2014.
@@ -51,5 +52,15 @@ public class Utils {
         }
 
         return buf.toString();
+    }
+
+    public static String formatDistance(int dist) {
+        if (dist < 1000){
+            dist = dist - dist % 10;
+            return dist + "m";
+        }
+        float kmDist = (float)dist / 1000;
+        String format = new DecimalFormat("#.#").format(kmDist);
+        return format+"km";
     }
 }

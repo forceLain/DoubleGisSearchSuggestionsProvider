@@ -6,5 +6,6 @@
     <string name="search_hint">Поиск</string>
     <string name="search_description">search description</string>
     <string name="item_search">Поиск</string>
+    <string name="settings">Настройки</string>
 
 </resources>

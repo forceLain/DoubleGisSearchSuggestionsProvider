@@ -2,15 +2,12 @@ package com.android.doublegissearch;
 
 import android.content.Context;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.WebChromeClient;
-import android.webkit.WebSettings;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.android.doublegissearch.model.Contacts;
 import com.android.doublegissearch.model.Profile;
@@ -21,7 +18,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Created by lain on 04.05.2014.
@@ -58,9 +54,11 @@ public class ProfileAdapter extends BaseAdapter {
         ProfileAddress address = new ProfileAddress();
         address.address = profile.address;
         profileItems.add(address);
-        ProfileSchedule schedule = new ProfileSchedule();
-        schedule.schedule = profile.schedule;
-        profileItems.add(schedule);
+        if (profile.schedule != null){
+            ProfileSchedule schedule = new ProfileSchedule();
+            schedule.schedule = profile.schedule;
+            profileItems.add(schedule);
+        }
         if (profile.contacts != null){
             for (Contacts contacts: profile.contacts){
                 if (contacts.contacts != null){
@@ -137,7 +135,15 @@ public class ProfileAdapter extends BaseAdapter {
         WebView webView = (WebView) convertView;
         webView.getSettings().setJavaScriptEnabled(true);
         String data = Utils.readFromAssets(convertView.getContext());
+        data = data.replaceAll("PH_LATITUDE", profileMap.lat);
+        data = data.replaceAll("PH_LONGITUDE", profileMap.lon);
         webView.loadDataWithBaseURL("http://www.example.com", data, "text/html", "UTF-8", null);
+        webView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return true;
+            }
+        });
         return webView;
     }
 
@@ -183,6 +189,12 @@ public class ProfileAdapter extends BaseAdapter {
     }
 
     private void setSchedule(TextView textView, String title, Map<String, Schedule.WorkInterval> workIntervalMap) {
+        if (workIntervalMap == null){
+            textView.setVisibility(View.GONE);
+            return;
+        } else {
+            textView.setVisibility(View.VISIBLE);
+        }
         StringBuilder sb = new StringBuilder(title);
         sb.append(" ");
         for(Map.Entry<String, Schedule.WorkInterval> entry: workIntervalMap.entrySet()){

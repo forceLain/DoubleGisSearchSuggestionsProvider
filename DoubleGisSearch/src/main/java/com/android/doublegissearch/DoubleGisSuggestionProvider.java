@@ -22,6 +22,7 @@ import com.android.volley.Response;
 import com.android.volley.toolbox.RequestFuture;
 import com.android.volley.toolbox.Volley;
 
+import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
 
 public class DoubleGisSuggestionProvider extends ContentProvider {
@@ -37,7 +38,6 @@ public class DoubleGisSuggestionProvider extends ContentProvider {
     private RequestQueue queue;
     private Cancelable cancelable;
     private Location location;
-    private String city;
 
     public DoubleGisSuggestionProvider() {
         cancelable = new Cancelable();
@@ -63,20 +63,6 @@ public class DoubleGisSuggestionProvider extends ContentProvider {
         Context context = getContext();
         queue = new Volley().newRequestQueue(context);
         location = LocationUtils.getLocation(context);
-
-        Response.Listener<ProjectResponse> success = new Response.Listener<ProjectResponse>() {
-            @Override
-            public void onResponse(ProjectResponse response) {
-                if (response.result != null) {
-                    city = LocationUtils.getNearestCity(location, response.result);
-                }
-            }
-        };
-
-        String urlRequest = new UrlBuilder().projects().build();
-        GsonRequest<ProjectResponse> request = new GsonRequest<ProjectResponse>(Request.Method.GET, urlRequest, ProjectResponse.class, success, null);
-        queue.add(request);
-
         return true;
     }
 
@@ -91,10 +77,7 @@ public class DoubleGisSuggestionProvider extends ContentProvider {
     private Cursor apiSearch(String query) {
         queue.cancelAll(cancelable);
         MatrixCursor cursor = new MatrixCursor(columnNames);
-        if (Utils.isEmpty(city)){
-            return cursor;
-        }
-        String urlRequest = new UrlBuilder().search().what(query).where(city).build();
+        String urlRequest = new UrlBuilder().search().what(query).where(location.getLongitude(), location.getLatitude()).build();
         RequestFuture<FirmResponse> future = RequestFuture.newFuture();
         GsonRequest<FirmResponse> request = new GsonRequest<FirmResponse>(Request.Method.GET, urlRequest, FirmResponse.class, future, future);
         request.setTag(cancelable);
@@ -113,8 +96,9 @@ public class DoubleGisSuggestionProvider extends ContentProvider {
     }
 
     private void fillCursor(Firm[] firms, MatrixCursor cursor) {
+        Arrays.sort(firms, new Firm.FirmComparator());
         for (Firm firm : firms) {
-            cursor.addRow(new Object[]{firm.id, firm.name, firm.address+" "+city, firm.id + "_" + firm.hash});
+            cursor.addRow(new Object[]{firm.id, firm.name, firm.address+" "+Utils.formatDistance(firm.dist), firm.id + "_" + firm.hash});
         }
     }
 

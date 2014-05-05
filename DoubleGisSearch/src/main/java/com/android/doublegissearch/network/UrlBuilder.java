@@ -8,7 +8,7 @@ import java.net.URLEncoder;
  */
 public class UrlBuilder {
     private static final String VERSION = "1.3";
-    private static final String KEY = "rumobc0685";
+    private static final String KEY = "rufvgz5184";
     private static final String ENDPOINT = "http://catalog.api.2gis.ru";
     private static final int RESOURCE_PROJECT = 1;
     private static final int RESOURCE_SEARCH = 2;
@@ -21,6 +21,8 @@ public class UrlBuilder {
     private int limit = DEFAULT_LIMIT;
     private String id;
     private String hash;
+    private double lon;
+    private double lat;
 
     public UrlBuilder projects() {
         resource = RESOURCE_PROJECT;
@@ -46,6 +48,15 @@ public class UrlBuilder {
 
     public UrlBuilder where(String where) {
         this.where = encode(where);
+        this.lon = 0;
+        this.lat = 0;
+        return this;
+    }
+
+    public UrlBuilder where(double lon, double lat){
+        this.lon = lon;
+        this.lat = lat;
+        this.where = null;
         return this;
     }
 
@@ -87,12 +98,19 @@ public class UrlBuilder {
     }
 
     private String buildSearchUrl() {
-        return ENDPOINT +
-                "/search?what=" + what +
-                "&where=" + where + "" +
-                "&version=" + VERSION +
-                "&key=" + KEY +
-                "&pagesize=" + limit +
-                "&sort=distance";
+        StringBuilder sb = new StringBuilder(ENDPOINT);
+        sb.append("/search?what=").append(what);
+        if (where != null){
+            sb.append("&where=").append(where);
+        } else if (lat != 0 && lon != 0){
+            sb.append("&point=").append(lon).append(",").append(lat)
+                    .append("&radius=40000");
+        }
+        sb.append("&version=" ).append(VERSION)
+                .append("&key=").append(KEY)
+                .append("&pagesize").append(limit)
+                .append("&sort=distance");
+
+        return sb.toString();
     }
 }

@@ -6,7 +6,15 @@
     <script type="text/javascript"> 
         DG.autoload(function() {
             var myMap = new DG.Map('myMapId');
-            myMap.setCenter(new DG.GeoPoint(82.927810142519,55.028936234826), 15);
+            myMap.setCenter(new DG.GeoPoint(PH_LONGITUDE,PH_LATITUDE), 15);
+            myMap.fullscreen.disable();
+            myMap.geoclicker.disable();
+
+            var myMarker = new DG.Markers.Common({
+                geoPoint: new DG.GeoPoint(PH_LONGITUDE,PH_LATITUDE),
+                clickCallback: null
+            });
+            myMap.markers.add(myMarker);
         }); 
     </script> 
 </head> 
