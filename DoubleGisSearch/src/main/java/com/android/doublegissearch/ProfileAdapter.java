@@ -10,6 +10,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.doublegissearch.model.Contacts;
 import com.android.doublegissearch.model.Profile;
@@ -145,12 +146,22 @@ public class ProfileAdapter extends BaseAdapter {
             convertView = layoutInflater.inflate(R.layout.profile_contacts, parent, false);
         }
         ProfileContact profileContact = (ProfileContact) profileItems.get(position);
+        String text;
+        if (profileContact.contact.alias != null){
+            text = profileContact.contact.alias;
+        } else {
+            text = profileContact.contact.value;
+        }
         TextView textView = (TextView) convertView.findViewById(R.id.profile_contact);
-        textView.setText(profileContact.contact.value);
-        textView = (TextView) convertView.findViewById(R.id.profile_alias);
-        textView.setText(profileContact.contact.alias);
+        textView.setText(text);
+
         textView = (TextView) convertView.findViewById(R.id.profile_comment);
-        textView.setText(profileContact.contact.comment);
+        if (Utils.isEmpty(profileContact.contact.comment)){
+            textView.setVisibility(View.GONE);
+        } else {
+            textView.setText(profileContact.contact.comment);
+            textView.setVisibility(View.VISIBLE);
+        }
         return convertView;
     }
 
