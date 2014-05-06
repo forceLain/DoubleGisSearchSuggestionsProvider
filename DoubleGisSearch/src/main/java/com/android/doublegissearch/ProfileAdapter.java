@@ -132,7 +132,7 @@ public class ProfileAdapter extends BaseAdapter {
             convertView = layoutInflater.inflate(R.layout.profile_map, parent, false);
         }
         ProfileMap profileMap = (ProfileMap) profileItems.get(position);
-        WebView webView = (WebView) convertView;
+        WebView webView = (WebView) convertView.findViewById(R.id.webview);
         webView.getSettings().setJavaScriptEnabled(true);
         String data = Utils.readFromAssets(convertView.getContext());
         data = data.replaceAll("PH_LATITUDE", profileMap.lat);
@@ -144,7 +144,7 @@ public class ProfileAdapter extends BaseAdapter {
                 return true;
             }
         });
-        return webView;
+        return convertView;
     }
 
     private View getViewContacts(int position, View convertView, ViewGroup parent) {
@@ -177,7 +177,12 @@ public class ProfileAdapter extends BaseAdapter {
         }
         ProfileSchedule profileSchedule = (ProfileSchedule) profileItems.get(position);
         TextView textView = (TextView) convertView.findViewById(R.id.profile_schedule_comment);
-        textView.setText(profileSchedule.schedule.comment);
+        if (Utils.isEmpty(profileSchedule.schedule.comment)){
+            textView.setVisibility(View.GONE);
+        } else {
+            textView.setText(profileSchedule.schedule.comment);
+            textView.setVisibility(View.VISIBLE);
+        }
         setSchedule((TextView) convertView.findViewById(R.id.schedule_mon), "Пн", profileSchedule.schedule.mon);
         setSchedule((TextView) convertView.findViewById(R.id.schedule_tue), "Вт", profileSchedule.schedule.tue);
         setSchedule((TextView) convertView.findViewById(R.id.schedule_wed), "Ср", profileSchedule.schedule.wed);
@@ -204,6 +209,7 @@ public class ProfileAdapter extends BaseAdapter {
                     .append(workInterval.to)
                     .append('\n');
         }
+        sb.deleteCharAt(sb.length()-1);
         textView.setText(sb.toString());
     }
 
