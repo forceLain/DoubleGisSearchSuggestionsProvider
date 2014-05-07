@@ -2,7 +2,7 @@ package com.android.doublegissearch.model;
 
 import com.google.gson.annotations.SerializedName;
 
-import java.util.Map;
+import java.util.LinkedHashMap;
 
 /**
  * Created by lain on 04.05.2014.
@@ -12,25 +12,25 @@ public class Schedule {
     public String comment;
 
     @SerializedName("Mon")
-    public Map<String, WorkInterval> mon;
+    public LinkedHashMap<String, WorkInterval> mon;
 
     @SerializedName("Tue")
-    public Map<String, WorkInterval> tue;
+    public LinkedHashMap<String, WorkInterval> tue;
 
     @SerializedName("Wed")
-    public Map<String, WorkInterval> wed;
+    public LinkedHashMap<String, WorkInterval> wed;
 
     @SerializedName("Thu")
-    public Map<String, WorkInterval> thu;
+    public LinkedHashMap<String, WorkInterval> thu;
 
     @SerializedName("Fri")
-    public Map<String, WorkInterval> fri;
+    public LinkedHashMap<String, WorkInterval> fri;
 
     @SerializedName("Sat")
-    public Map<String, WorkInterval> sat;
+    public LinkedHashMap<String, WorkInterval> sat;
 
     @SerializedName("Sun")
-    public Map<String, WorkInterval> sun;
+    public LinkedHashMap<String, WorkInterval> sun;
 
     public static class WorkInterval{
         public String from;
