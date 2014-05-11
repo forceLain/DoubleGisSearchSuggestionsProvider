@@ -5,4 +5,5 @@ package com.android.doublegissearch.model;
  */
 public class FirmResponse extends ApiResponse {
     public Firm[] result;
+    public AdFirm[] advertising;
 }

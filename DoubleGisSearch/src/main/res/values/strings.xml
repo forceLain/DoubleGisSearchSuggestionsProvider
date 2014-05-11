@@ -7,5 +7,16 @@
     <string name="search_description">search description</string>
     <string name="item_search">Поиск</string>
     <string name="settings">Настройки</string>
+    <string name="mon">Пн</string>
+    <string name="tue">Вт</string>
+    <string name="wed">Ср</string>
+    <string name="thu">Чт</string>
+    <string name="fri">Пт</string>
+    <string name="sat">Сб</string>
+    <string name="sun">Вс</string>
+    <string name="break_title">Перерыв</string>
+    <string name="m">м</string>
+    <string name="km">км</string>
+    <string name="empty">Ничего не найдено</string>
 
 </resources>

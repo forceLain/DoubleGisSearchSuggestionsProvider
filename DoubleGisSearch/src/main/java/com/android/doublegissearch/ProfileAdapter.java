@@ -1,6 +1,8 @@
 package com.android.doublegissearch;
 
 import android.content.Context;
+import android.os.Build;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -31,18 +33,20 @@ public class ProfileAdapter extends BaseAdapter {
     private static final int PROFILE_MAP = 4;
 
     private final LayoutInflater layoutInflater;
-    private final Profile profile;
     private interface ProfileData{}
     private List<ProfileData> profileItems;
 
     public ProfileAdapter(Context context, Profile profile){
         layoutInflater = LayoutInflater.from(context);
-        this.profile = profile;
         profileItems = new ArrayList<ProfileData>();
-        parseProfile();
+        setProfile(profile);
     }
 
-    private void parseProfile() {
+    public void setProfile(Profile profile) {
+        profileItems.clear();
+        if (profile == null){
+            return;
+        }
         ProfileMap profileMap = new ProfileMap();
         profileMap.lat = profile.lat;
         profileMap.lon = profile.lon;
@@ -50,6 +54,8 @@ public class ProfileAdapter extends BaseAdapter {
         ProfileName profileName = new ProfileName();
         profileName.name = profile.name;
         profileName.rubricks = profile.rubrics;
+        profileName.article = profile.article;
+        profileName.link = profile.link;
         profileItems.add(profileName);
         ProfileAddress address = new ProfileAddress();
         address.address = profile.address;
@@ -70,6 +76,7 @@ public class ProfileAdapter extends BaseAdapter {
                 }
             }
         }
+        notifyDataSetChanged();
     }
 
     @Override
@@ -100,7 +107,7 @@ public class ProfileAdapter extends BaseAdapter {
     }
 
     @Override
-    public Object getItem(int position) {
+    public ProfileData getItem(int position) {
         return profileItems.get(position);
     }
 
@@ -131,19 +138,19 @@ public class ProfileAdapter extends BaseAdapter {
         if (convertView == null){
             convertView = layoutInflater.inflate(R.layout.profile_map, parent, false);
         }
-        ProfileMap profileMap = (ProfileMap) profileItems.get(position);
-        WebView webView = (WebView) convertView.findViewById(R.id.webview);
+        final ProfileMap profileMap = (ProfileMap) profileItems.get(position);
+        final WebView webView = (WebView) convertView.findViewById(R.id.webview);
         webView.getSettings().setJavaScriptEnabled(true);
+        webView.setFocusable(false);
+        webView.setFocusableInTouchMode(false);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+        }
         String data = Utils.readFromAssets(convertView.getContext());
         data = data.replaceAll("PH_LATITUDE", profileMap.lat);
         data = data.replaceAll("PH_LONGITUDE", profileMap.lon);
         webView.loadDataWithBaseURL("http://www.example.com", data, "text/html", "UTF-8", null);
-        webView.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                return true;
-            }
-        });
+        webView.setOnTouchListener(new WebViewTouchListener(profileMap, webView.getContext()));
         return convertView;
     }
 
@@ -183,13 +190,14 @@ public class ProfileAdapter extends BaseAdapter {
             textView.setText(profileSchedule.schedule.comment);
             textView.setVisibility(View.VISIBLE);
         }
-        setSchedule((TextView) convertView.findViewById(R.id.schedule_mon), "Пн", profileSchedule.schedule.mon);
-        setSchedule((TextView) convertView.findViewById(R.id.schedule_tue), "Вт", profileSchedule.schedule.tue);
-        setSchedule((TextView) convertView.findViewById(R.id.schedule_wed), "Ср", profileSchedule.schedule.wed);
-        setSchedule((TextView) convertView.findViewById(R.id.schedule_thu), "Чт", profileSchedule.schedule.thu);
-        setSchedule((TextView) convertView.findViewById(R.id.schedule_fri), "Пт", profileSchedule.schedule.fri);
-        setSchedule((TextView) convertView.findViewById(R.id.schedule_sat), "Сб", profileSchedule.schedule.sat);
-        setSchedule((TextView) convertView.findViewById(R.id.schedule_sun), "Вс", profileSchedule.schedule.sun);
+        Context context = convertView.getContext();
+        setSchedule((TextView) convertView.findViewById(R.id.schedule_mon), context.getString(R.string.mon), profileSchedule.schedule.mon);
+        setSchedule((TextView) convertView.findViewById(R.id.schedule_tue), context.getString(R.string.tue), profileSchedule.schedule.tue);
+        setSchedule((TextView) convertView.findViewById(R.id.schedule_wed), context.getString(R.string.wed), profileSchedule.schedule.wed);
+        setSchedule((TextView) convertView.findViewById(R.id.schedule_thu), context.getString(R.string.thu), profileSchedule.schedule.thu);
+        setSchedule((TextView) convertView.findViewById(R.id.schedule_fri), context.getString(R.string.fri), profileSchedule.schedule.fri);
+        setSchedule((TextView) convertView.findViewById(R.id.schedule_sat), context.getString(R.string.sat), profileSchedule.schedule.sat);
+        setSchedule((TextView) convertView.findViewById(R.id.schedule_sun), context.getString(R.string.sun), profileSchedule.schedule.sun);
         return convertView;
     }
 
@@ -200,16 +208,29 @@ public class ProfileAdapter extends BaseAdapter {
         } else {
             textView.setVisibility(View.VISIBLE);
         }
-        StringBuilder sb = new StringBuilder(title);
-        sb.append(" ");
+
+        String start = null;
+        String stop = null;
+        ArrayList<String> breakIntervals = new ArrayList<String>();
+
         for(Map.Entry<String, Schedule.WorkInterval> entry: workIntervalMap.entrySet()){
             Schedule.WorkInterval workInterval = entry.getValue();
-            sb.append(workInterval.from)
-                    .append("-")
-                    .append(workInterval.to)
-                    .append('\n');
+            if (start == null){
+                start = workInterval.from;
+            } else {
+                breakIntervals.add(stop);
+                breakIntervals.add(workInterval.from);
+            }
+            stop = workInterval.to;
         }
-        sb.deleteCharAt(sb.length()-1);
+        StringBuilder sb = new StringBuilder(title+": "+start+" - "+stop);
+        if (breakIntervals.size() > 0){
+            String breakTitle = " "+textView.getContext().getString(R.string.break_title)+":";
+            sb.append(breakTitle);
+            for (int i = 0; i < breakIntervals.size()/2; i++){
+                sb.append(" "+breakIntervals.get(2*i)+ " - "+breakIntervals.get(2*i+1));
+            }
+        }
         textView.setText(sb.toString());
     }
 
@@ -227,17 +248,45 @@ public class ProfileAdapter extends BaseAdapter {
         if (convertView == null){
             convertView = layoutInflater.inflate(R.layout.profile_title, parent, false);
         }
-        ProfileName profileName = (ProfileName) profileItems.get(position);
+        final ProfileName profileName = (ProfileName) profileItems.get(position);
         TextView textView = (TextView) convertView.findViewById(R.id.profile_name);
         textView.setText(profileName.name);
         textView = (TextView) convertView.findViewById(R.id.profile_rubricks);
-        textView.setText(Arrays.toString(profileName.rubricks));
+        if (profileName.rubricks != null){
+            textView.setText(Arrays.toString(profileName.rubricks));
+        }
+        textView = (TextView) convertView.findViewById(R.id.profile_article);
+        if (Utils.isEmpty(profileName.article)){
+            textView.setVisibility(View.GONE);
+            textView.setText("");
+        } else {
+            textView.setVisibility(View.VISIBLE);
+            textView.setText(Html.fromHtml(profileName.article));
+        }
+        textView = (TextView) convertView.findViewById(R.id.profile_link);
+        if (profileName.link == null){
+            textView.setVisibility(View.GONE);
+            textView.setText("");
+            textView.setOnClickListener(null);
+        } else {
+            textView.setVisibility(View.VISIBLE);
+            textView.setText(Html.fromHtml(profileName.link.text));
+            textView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Utils.openWeb(profileName.link.link, v.getContext());
+                }
+            });
+        }
+
         return convertView;
     }
 
     private class ProfileName implements ProfileData{
         String name;
         String[] rubricks;
+        String article;
+        Profile.Link link;
     }
 
     private class ProfileAddress implements ProfileData{
@@ -255,5 +304,56 @@ public class ProfileAdapter extends BaseAdapter {
     private class ProfileMap implements ProfileData{
         String lat;
         String lon;
+    }
+
+    private class WebViewTouchListener implements View.OnTouchListener{
+
+        private final ProfileMap profileMap;
+        private final Context context;
+
+        WebViewTouchListener(ProfileMap profileMap, Context context){
+            this.profileMap = profileMap;
+            this.context = context;
+        }
+
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
+            int action = event.getAction();
+
+            switch (action) {
+                case MotionEvent.ACTION_CANCEL:
+                    return true;
+                case MotionEvent.ACTION_UP:
+                    openMap(profileMap, context);
+                    return true;
+            }
+
+            return true;
+        }
+    }
+
+
+    public void handleClick(int position, Context context) {
+        ProfileData item = getItem(position);
+        if (item instanceof ProfileContact){
+            openContact((ProfileContact)item, context);
+        } else if (item instanceof ProfileMap){
+            openMap((ProfileMap)item, context);
+        }
+    }
+
+    private void openMap(ProfileMap item, Context context) {
+        Utils.openMap(item.lat, item.lon, context);
+    }
+
+    private void openContact(ProfileContact item, Context context) {
+        Contacts.Contact contact = item.contact;
+        if ("email".equals(contact.type)){
+            Utils.sendEmail(contact.value, context);
+        } else if ("website".equals(contact.type)){
+            Utils.openWeb(contact.value, context);
+        } else if ("phone".equals(contact.type) || "fax".equals(contact.type)){
+            Utils.call(contact.value, context);
+        }
     }
 }

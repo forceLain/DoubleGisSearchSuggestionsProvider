@@ -1,6 +1,8 @@
 package com.android.doublegissearch.utils;
 
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -54,13 +56,37 @@ public class Utils {
         return buf.toString();
     }
 
-    public static String formatDistance(int dist) {
+    public static String formatDistance(int dist, String m, String km) {
         if (dist < 1000){
             dist = dist - dist % 10;
-            return dist + "m";
+            return dist + m;
         }
         float kmDist = (float)dist / 1000;
         String format = new DecimalFormat("#.#").format(kmDist);
-        return format+"km";
+        return format+km;
+    }
+
+    public static void sendEmail(String email, Context context){
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.setType("text/html");
+        intent.putExtra(Intent.EXTRA_EMAIL, email);
+        context.startActivity(Intent.createChooser(intent, "Email"));
+    }
+
+    public static void openWeb(String url, Context context) {
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+        context.startActivity(Intent.createChooser(intent, "Web"));
+    }
+
+    public static void call(String phone, Context context) {
+        Intent intent = new Intent(Intent.ACTION_DIAL);
+        intent.setData(Uri.parse("tel:"+Uri.encode(phone)));
+        context.startActivity(Intent.createChooser(intent, "Call"));
+    }
+
+    public static void openMap(String lat, String lon, Context context) {
+        String action = String.format("geo:%s,%s?q=%s,%s", lat, lon, lat, lon);
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(action));
+        context.startActivity(Intent.createChooser(intent, "Map"));
     }
 }

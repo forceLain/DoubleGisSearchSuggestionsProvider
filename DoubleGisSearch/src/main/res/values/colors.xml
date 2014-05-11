@@ -2,4 +2,5 @@
 <resources>
     <color name="blue">#FF00B2DD</color>
     <color name="gray_dark">#FF404041</color>
+    <color name="ad_bg">#AAF9EC00</color>
 </resources>
