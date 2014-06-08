@@ -4,11 +4,13 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 
 import com.android.doublegissearch.GsonRequest;
+import com.android.doublegissearch.MainActivity;
 import com.android.doublegissearch.ProfileAdapter;
 import com.android.doublegissearch.R;
 import com.android.doublegissearch.VolleyActivity;
@@ -42,6 +44,11 @@ public class ProfileFragment extends BaseListFragment {
     }
 
     @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+    }
+
+    @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         if (activity instanceof VolleyActivity){
@@ -71,6 +78,7 @@ public class ProfileFragment extends BaseListFragment {
         ProfileAdapter adapter = new ProfileAdapter(getActivity(), null);
         setListAdapter(adapter);
         search(id, hash);
+        setDisplayHomeAsUpEnabled(true);
         return root;
     }
 
@@ -80,12 +88,12 @@ public class ProfileFragment extends BaseListFragment {
         profileAdapter.handleClick(position, getActivity());
     }
 
-
     public void search(String id, String hash) {
         Response.Listener<Profile> onSuccess = new Response.Listener<Profile>() {
             @Override
             public void onResponse(Profile profile) {
-                ((ProfileAdapter)getListAdapter()).setProfile(profile);
+                setActionBarTitle(profile.name);
+                ((ProfileAdapter) getListAdapter()).setProfile(profile);
                 registerView(profile.registerBcUrl);
                 updateProgress(false);
                 setEmptyViewVisibility(getListAdapter().getCount() == 0);

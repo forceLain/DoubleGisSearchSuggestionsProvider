@@ -18,6 +18,7 @@ import android.widget.TextView;
 import com.android.doublegissearch.DoubleGisSuggestionProvider;
 import com.android.doublegissearch.MainActivity;
 import com.android.doublegissearch.R;
+import com.android.doublegissearch.utils.Utils;
 
 /**
  * Created by lain on 11.05.2014.
@@ -52,6 +53,8 @@ public class FirmListFragment extends BaseListFragment implements LoaderManager.
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_firm_list, container, false);
+        setActionBarTitle(Utils.notNullString(query));
+        setDisplayHomeAsUpEnabled(false);
         return root;
     }
 
@@ -84,6 +87,7 @@ public class FirmListFragment extends BaseListFragment implements LoaderManager.
 
     public void search(String query){
         this.query = query;
+        setActionBarTitle(query);
         getLoaderManager().restartLoader(0, null, this);
     }
 

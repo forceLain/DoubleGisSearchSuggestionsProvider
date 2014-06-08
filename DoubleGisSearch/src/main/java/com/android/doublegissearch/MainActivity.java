@@ -69,6 +69,14 @@ public class MainActivity extends ActionBarActivity implements SearchView.OnQuer
     }
 
     @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home){
+            onBackPressed();
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
     protected void onNewIntent(Intent intent) {
         handleIntent(intent);
     }

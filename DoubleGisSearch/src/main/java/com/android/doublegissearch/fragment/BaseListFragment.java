@@ -2,8 +2,10 @@ package com.android.doublegissearch.fragment;
 
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
+import android.support.v7.app.ActionBarActivity;
 import android.view.View;
 
+import com.android.doublegissearch.MainActivity;
 import com.android.doublegissearch.R;
 
 /**
@@ -34,5 +36,15 @@ public abstract class BaseListFragment extends ListFragment {
                 emptyView.setVisibility(View.GONE);
             }
         }
+    }
+
+    protected void setActionBarTitle(String title){
+        ActionBarActivity activity = (ActionBarActivity) getActivity();
+        activity.getSupportActionBar().setTitle(title);
+    }
+
+    protected void setDisplayHomeAsUpEnabled(boolean showHomeAsEnabled){
+        ActionBarActivity activity = (ActionBarActivity) getActivity();
+        activity.getSupportActionBar().setDisplayHomeAsUpEnabled(showHomeAsEnabled);
     }
 }

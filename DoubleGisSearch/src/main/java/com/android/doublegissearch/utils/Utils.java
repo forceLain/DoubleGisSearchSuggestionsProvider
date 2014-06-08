@@ -89,4 +89,11 @@ public class Utils {
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(action));
         context.startActivity(Intent.createChooser(intent, "Map"));
     }
+
+    public static String notNullString(String query) {
+        if (query == null){
+            return "";
+        }
+        return query;
+    }
 }
