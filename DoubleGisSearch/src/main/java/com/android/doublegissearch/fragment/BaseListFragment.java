@@ -15,6 +15,12 @@ public abstract class BaseListFragment extends ListFragment {
 
     private View emptyView;
 
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setRetainInstance(true);
+    }
+
     protected void updateProgress(boolean visibility){
         getActivity().setProgressBarIndeterminate(true);
         getActivity().setProgressBarVisibility(visibility);

@@ -20,6 +20,7 @@ import android.widget.ListView;
 
 import com.android.doublegissearch.fragment.FirmListFragment;
 import com.android.doublegissearch.fragment.ProfileFragment;
+import com.android.doublegissearch.fragment.WelcomeFragment;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
 
@@ -34,20 +35,17 @@ public class MainActivity extends ActionBarActivity implements SearchView.OnQuer
         requestWindowFeature(Window.FEATURE_PROGRESS);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        ListView listView = (ListView) findViewById(R.id.welcome_list);
-        final WelcomeAdapter adapter = new WelcomeAdapter();
-        listView.setAdapter(adapter);
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String text = adapter.getItem(position);
-                ViewGroup container = (ViewGroup) findViewById(R.id.main_content);
-                container.removeAllViews();
-                searchFirms(text);
-            }
-        });
+        showWelcomeFragment();
         queue = new Volley().newRequestQueue(this);
         handleIntent(getIntent());
+    }
+
+    private void showWelcomeFragment() {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        WelcomeFragment fragment = new WelcomeFragment();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.replace(R.id.main_content, fragment);
+        transaction.commit();
     }
 
     @Override
@@ -92,7 +90,7 @@ public class MainActivity extends ActionBarActivity implements SearchView.OnQuer
         }
     }
 
-    private void searchFirms(String query) {
+    public void searchFirms(String query) {
         FragmentManager fragmentManager = getSupportFragmentManager();
         Fragment fragment = fragmentManager.findFragmentById(R.id.main_content);
         if (!(fragment instanceof FirmListFragment)) {
