@@ -10,14 +10,13 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.SearchView;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
-import android.widget.ImageView;
-import android.widget.TextView;
+import android.widget.AdapterView;
+import android.widget.ListView;
 
 import com.android.doublegissearch.fragment.FirmListFragment;
 import com.android.doublegissearch.fragment.ProfileFragment;
@@ -35,27 +34,20 @@ public class MainActivity extends ActionBarActivity implements SearchView.OnQuer
         requestWindowFeature(Window.FEATURE_PROGRESS);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        fillWelcomeContainer();
+        ListView listView = (ListView) findViewById(R.id.welcome_list);
+        final WelcomeAdapter adapter = new WelcomeAdapter();
+        listView.setAdapter(adapter);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String text = adapter.getItem(position);
+                ViewGroup container = (ViewGroup) findViewById(R.id.main_content);
+                container.removeAllViews();
+                searchFirms(text);
+            }
+        });
         queue = new Volley().newRequestQueue(this);
         handleIntent(getIntent());
-    }
-
-    private void fillWelcomeContainer() {
-        ViewGroup viewGroup = (ViewGroup) findViewById(R.id.welcome_container);
-        LayoutInflater inflater = LayoutInflater.from(this);
-        addView(inflater, viewGroup, "Такси", R.drawable.ic_taxi);
-        addView(inflater, viewGroup, "Банкоматы", R.drawable.ic_card);
-        addView(inflater, viewGroup, "Автосервис", R.drawable.ic_wheel);
-
-    }
-
-    private void addView(LayoutInflater inflater, ViewGroup viewGroup, String text, int iconResId) {
-        View view = inflater.inflate(R.layout.welcome_item, viewGroup, false);
-        TextView textView = (TextView) view.findViewById(R.id.welcome_text);
-        textView.setText(text);
-        ImageView imageView = (ImageView) view.findViewById(R.id.welcome_icon);
-        imageView.setImageResource(iconResId);
-        viewGroup.addView(view);
     }
 
     @Override
@@ -70,7 +62,7 @@ public class MainActivity extends ActionBarActivity implements SearchView.OnQuer
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == android.R.id.home){
+        if (item.getItemId() == android.R.id.home) {
             onBackPressed();
         }
         return super.onOptionsItemSelected(item);
@@ -82,7 +74,7 @@ public class MainActivity extends ActionBarActivity implements SearchView.OnQuer
     }
 
     private void handleIntent(Intent intent) {
-        if (searchItem != null){
+        if (searchItem != null) {
             MenuItemCompat.collapseActionView(searchItem);
         }
         if (Intent.ACTION_VIEW.equals(intent.getAction())) {
@@ -103,7 +95,7 @@ public class MainActivity extends ActionBarActivity implements SearchView.OnQuer
     private void searchFirms(String query) {
         FragmentManager fragmentManager = getSupportFragmentManager();
         Fragment fragment = fragmentManager.findFragmentById(R.id.main_content);
-        if (!(fragment instanceof FirmListFragment)){
+        if (!(fragment instanceof FirmListFragment)) {
             fragment = FirmListFragment.create(query);
             fragmentManager.popBackStack(ProfileFragment.TAG, FragmentManager.POP_BACK_STACK_INCLUSIVE);
             FragmentTransaction transaction = fragmentManager.beginTransaction();
@@ -117,12 +109,12 @@ public class MainActivity extends ActionBarActivity implements SearchView.OnQuer
     private void searchProfile(String id, String hash) {
         FragmentManager fragmentManager = getSupportFragmentManager();
         Fragment fragment = fragmentManager.findFragmentById(R.id.main_content);
-        if (!(fragment instanceof ProfileFragment)){
+        if (!(fragment instanceof ProfileFragment)) {
             boolean addToBackStack = (fragment != null);
             fragment = ProfileFragment.create(id, hash);
             FragmentTransaction transaction = fragmentManager.beginTransaction();
             transaction.replace(R.id.main_content, fragment);
-            if (addToBackStack){
+            if (addToBackStack) {
                 transaction.addToBackStack(ProfileFragment.TAG);
             }
             transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
@@ -134,7 +126,7 @@ public class MainActivity extends ActionBarActivity implements SearchView.OnQuer
 
     @Override
     public boolean onQueryTextSubmit(String s) {
-        if (searchItem != null){
+        if (searchItem != null) {
             MenuItemCompat.collapseActionView(searchItem);
         }
         return true;
@@ -142,7 +134,7 @@ public class MainActivity extends ActionBarActivity implements SearchView.OnQuer
 
     @Override
     public boolean onQueryTextChange(String s) {
-        if (s.length() > 2){
+        if (s.length() > 2) {
             searchFirms(s);
             return true;
         }

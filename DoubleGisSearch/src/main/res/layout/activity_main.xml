@@ -6,18 +6,22 @@
     android:padding="10dp"
     tools:context="com.android.doublegissearch.MainActivity">
 
-    <FrameLayout
+    <LinearLayout
         android:id="@+id/main_content"
+        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <include
-            android:id="@+id/welcome_container"
-            layout="@layout/welcome"
+        <ImageView
+            android:src="@drawable/welcome_logo"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_gravity="center" />
+            android:layout_height="wrap_content" />
 
-    </FrameLayout>
+        <ListView
+            android:id="@+id/welcome_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+    </LinearLayout>
 
 </RelativeLayout>
